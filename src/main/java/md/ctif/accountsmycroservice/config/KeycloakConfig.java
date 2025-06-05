@@ -6,6 +6,7 @@ import org.keycloak.admin.client.KeycloakBuilder;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +18,18 @@ import javax.net.ssl.SSLSession;
 
 @Configuration
 public class KeycloakConfig {
+    @Value("keycloak.server-url")
+    private String keycloakUrl;
+    @Value("keycloak.realm")
+    private String realm;
+    @Value("keycloak.admin-client-id")
+    private String keycloakClientId;
+    @Value("keycloak.admin-client-secret")
+    private String keycloakClientSecret;
+    @Value("keycloak.admin-user-username")
+    private String keycloakUsername;
+    @Value("keycloak.admin-user-password")
+    private String keycloakPassword;
     @Bean
     public Keycloak keycloak() throws Exception {
         TrustManager[] trustAllCerts = new TrustManager[] {
@@ -46,13 +59,13 @@ public class KeycloakConfig {
                 .build();
 
         return KeycloakBuilder.builder()
-                .serverUrl("https://www.mykeycloak.com:8040/auth")
-                .realm("recipe-app")
-                .clientId("second-client")
-                .clientSecret("FpGjNzJDdMjr6sijBvMKk1DeSN61olkx")
+                .serverUrl(keycloakUrl)
+                .realm(realm)
+                .clientId(keycloakClientId)
+                .clientSecret(keycloakClientSecret)
                 .grantType(OAuth2Constants.PASSWORD)
-                .username("danu.anastasia@ceiti.md")
-                .password("password")
+                .username(keycloakUsername)
+                .password(keycloakPassword)
                 .resteasyClient(resteasyClient)
                 .build();
     }

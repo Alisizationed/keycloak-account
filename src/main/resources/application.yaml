@@ -11,28 +11,14 @@ spring:
         jwt:
           issuer-uri: https://www.mykeycloak.com:8040/auth/realms/recipe-app
           jwk-set-uri: "${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs"
-      client:
-        registration:
-          keycloak:
-            client-id: java-client
-            client-secret: jHegYaOQdSfWSj1ZglLakwZuuC0yBgly
-            scope: openid,profile,email
-            authorization-grant-type: client_credentials
-        provider:
-          keycloak:
-            token-uri: https://www.mykeycloak.com:8040/auth/realms/recipe-app/protocol/openid-connect/token
-            user-info-uri: https://www.mykeycloak.com:8040/auth/realms/recipe-app/protocol/openid-connect/userinfo
-            jwk-set-uri: https://www.mykeycloak.com:8040/auth/realms/recipe-app/protocol/openid-connect/certs
-            issuer-uri: https://www.mykeycloak.com:8040/auth/realms/recipe-app
 
 keycloak:
-  server-url: https://www.mykeycloak.com:8040
-  realm: master
-  admin-client-id: your-client-id
-  admin-client-secret: your-client-secret
-  users-endpoint: ${keycloak.server-url}/admin/realms/${keycloak.realm}/users
-  groups-endpoint: ${keycloak.server-url}/admin/realms/${keycloak.realm}/groups
-  roles-endpoint: ${keycloak.server-url}/admin/realms/${keycloak.realm}/roles
+  server-url: https://www.mykeycloak.com:8040/auth
+  realm: recipe-app
+  admin-client-id: java-client
+  admin-client-secret: jHegYaOQdSfWSj1ZglLakwZuuC0yBgly
+  admin-user-username: danu.anastasia@ceiti.md
+  admin-user-password: password
 
 server:
   port: 8463
