@@ -1,15 +1,13 @@
-package md.ctif.accountsmycroservice.security;
+package md.ctif.accountsmicroservice.security;
 
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import md.ctif.accountsmycroservice.converters.KeycloakJwtRolesConverter;
+import md.ctif.accountsmicroservice.converters.KeycloakJwtRolesConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -118,10 +116,9 @@ public class SecurityConfig {
 
         String jwkSetUri = env.getProperty("spring.security.oauth2.resourceserver.jwt.jwk-set-uri");
 
-        NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
+        assert jwkSetUri != null;
+        return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
                 .webClient(webClient)
                 .build();
-
-        return jwtDecoder;
     }
 }

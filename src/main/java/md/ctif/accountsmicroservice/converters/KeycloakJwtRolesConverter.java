@@ -1,4 +1,4 @@
-package md.ctif.accountsmycroservice.converters;
+package md.ctif.accountsmicroservice.converters;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,13 +1,11 @@
-package md.ctif.accountsmycroservice;
+package md.ctif.accountsmicroservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AccountsMycroserviceApplication {
-
+public class AccountsMicroserviceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(AccountsMycroserviceApplication.class, args);
+        SpringApplication.run(AccountsMicroserviceApplication.class, args);
     }
-
 }

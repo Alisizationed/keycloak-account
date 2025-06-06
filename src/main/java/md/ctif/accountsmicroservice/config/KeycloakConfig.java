@@ -1,4 +1,4 @@
-package md.ctif.accountsmycroservice.config;
+package md.ctif.accountsmicroservice.config;
 
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -18,17 +18,17 @@ import javax.net.ssl.SSLSession;
 
 @Configuration
 public class KeycloakConfig {
-    @Value("keycloak.server-url")
+    @Value("${keycloak.server-url}")
     private String keycloakUrl;
-    @Value("keycloak.realm")
+    @Value("${keycloak.realm}")
     private String realm;
-    @Value("keycloak.admin-client-id")
+    @Value("${keycloak.admin-client-id}")
     private String keycloakClientId;
-    @Value("keycloak.admin-client-secret")
+    @Value("${keycloak.admin-client-secret}")
     private String keycloakClientSecret;
-    @Value("keycloak.admin-user-username")
+    @Value("${keycloak.admin-user-username}")
     private String keycloakUsername;
-    @Value("keycloak.admin-user-password")
+    @Value("${keycloak.admin-user-password}")
     private String keycloakPassword;
     @Bean
     public Keycloak keycloak() throws Exception {
@@ -46,12 +46,7 @@ public class KeycloakConfig {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
-        HostnameVerifier allHostsValid = new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        };
+        HostnameVerifier allHostsValid = (hostname, session) -> true;
 
         ResteasyClient resteasyClient = (ResteasyClient) ResteasyClientBuilder.newBuilder()
                 .sslContext(sslContext)
