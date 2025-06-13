@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/users")
 @AllArgsConstructor
@@ -40,5 +42,10 @@ public class AdminClientController {
     @GetMapping("/email/{email}")
     public Mono<String> getKeycloakIdByEmail(@PathVariable("email") String email) {
         return adminClientService.getKeycloakUserId(email);
+    }
+
+    @GetMapping("/favourite/{username}")
+    public Flux<String> getFavouriteByUsername(@PathVariable("username") String username) {
+        return adminClientService.getFavouriteByUsername(username);
     }
 }

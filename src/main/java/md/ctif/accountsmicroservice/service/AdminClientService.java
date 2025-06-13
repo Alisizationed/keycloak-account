@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class AdminClientService {
     @Autowired
@@ -24,7 +27,7 @@ public class AdminClientService {
     public Flux<UserListRepresentationDTO> getAllKeycloakUsersPageable(Integer offset, Integer limit) {
         return Flux.fromIterable(keycloak.realm("recipe-app")
                         .users()
-                        .list(offset,limit))
+                        .list(offset, limit))
                 .map(UserListRepresentationDTO::new);
     }
 
@@ -60,5 +63,18 @@ public class AdminClientService {
                         .users()
                         .count()
         ).map(Long::valueOf);
+    }
+
+    public Flux<String> getFavouriteByUsername(String username) {
+        try {
+            List<String> list = keycloak.realm("recipe-app").users()
+                    .search(username, true)
+                    .getFirst()
+                    .getAttributes()
+                    .get("favourite");
+            return list != null ? Flux.fromIterable(list) : Flux.empty();
+        } catch (Exception e) {
+            return Flux.empty();
+        }
     }
 }
