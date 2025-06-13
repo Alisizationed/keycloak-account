@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/users")
 @AllArgsConstructor
@@ -47,5 +45,14 @@ public class AdminClientController {
     @GetMapping("/favourite/{id}")
     public Flux<Long> getFavouriteByKeycloakId(@PathVariable("id") String id) {
         return adminClientService.getFavouriteByKeycloakId(id);
+    }
+
+    @GetMapping("/favourite/v2/{id}")
+    public Flux<Long> getFavouriteByKeycloakIdPageable(
+            @PathVariable("id") String id,
+            @RequestParam Integer offset,
+            @RequestParam Integer limit
+    ) {
+        return adminClientService.getFavouriteByKeycloakIdPageable(id, offset, limit);
     }
 }

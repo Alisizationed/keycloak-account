@@ -79,4 +79,20 @@ public class AdminClientService {
             return Flux.empty();
         }
     }
+
+    public Flux<Long> getFavouriteByKeycloakIdPageable(String id, Integer offset, Integer limit) {
+        try {
+            List<Long> list = keycloak.realm("recipe-app").users()
+                    .get(id)
+                    .toRepresentation()
+                    .getAttributes()
+                    .get("favourite")
+                    .stream().map(Long::valueOf).collect(Collectors.toList());
+            offset = Math.min(offset,list.toArray().length);
+            limit = Math.min(offset + limit,list.toArray().length);
+            return Flux.fromIterable(list.subList(offset, limit));
+        } catch (Exception e) {
+            return Flux.empty();
+        }
+    }
 }
