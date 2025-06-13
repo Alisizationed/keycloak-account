@@ -1,7 +1,7 @@
 spring:
   application:
     name:
-      accounts-mycroservice
+      accounts-microservice
   docker:
     compose:
       enabled: false
@@ -16,7 +16,7 @@ keycloak:
   server-url: https://www.mykeycloak.com:8040/auth
   realm: recipe-app
   admin-client-id: java-client
-  admin-client-secret: jHegYaOQdSfWSj1ZglLakwZuuC0yBgly
+  admin-client-secret: RgiolwvRMgwlxRDO0W4KMC2dSXZhtqZn
   admin-user-username: danu.anastasia@ceiti.md
   admin-user-password: password
 

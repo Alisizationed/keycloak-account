@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import md.ctif.accountsmicroservice.DTO.UserListRepresentationDTO;
 import md.ctif.accountsmicroservice.DTO.UserPublicRepresentationDTO;
 import md.ctif.accountsmicroservice.service.AdminClientService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +18,18 @@ public class AdminClientController {
     @GetMapping
     public Flux<UserListRepresentationDTO> getAllUsers() {
         return adminClientService.getAllKeycloakUsers();
+    }
+
+    @GetMapping("/count")
+    public Mono<Long> getUserCount() {
+        return adminClientService.getKeycloakUserCount();
+    }
+
+    @GetMapping("/page")
+    public Flux<UserListRepresentationDTO> getAllUsersPageable(
+            @RequestParam Integer offset, @RequestParam Integer limit
+    ) {
+        return adminClientService.getAllKeycloakUsersPageable(offset, limit);
     }
 
     @GetMapping("/{id}")

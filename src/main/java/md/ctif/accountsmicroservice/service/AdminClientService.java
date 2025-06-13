@@ -21,6 +21,13 @@ public class AdminClientService {
                 .map(UserListRepresentationDTO::new);
     }
 
+    public Flux<UserListRepresentationDTO> getAllKeycloakUsersPageable(Integer offset, Integer limit) {
+        return Flux.fromIterable(keycloak.realm("recipe-app")
+                        .users()
+                        .list(offset,limit))
+                .map(UserListRepresentationDTO::new);
+    }
+
     public Mono<UserPublicRepresentationDTO> getKeycloakUserByEmail(String email) {
         return Mono.just(
                 keycloak.realm("recipe-app")
@@ -45,5 +52,13 @@ public class AdminClientService {
                         .searchByEmail(email, true)
                         .getFirst()
         ).map(AbstractUserRepresentation::getId);
+    }
+
+    public Mono<Long> getKeycloakUserCount() {
+        return Mono.just(
+                keycloak.realm("recipe-app")
+                        .users()
+                        .count()
+        ).map(Long::valueOf);
     }
 }
