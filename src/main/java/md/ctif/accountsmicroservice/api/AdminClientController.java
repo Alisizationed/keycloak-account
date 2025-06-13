@@ -44,8 +44,8 @@ public class AdminClientController {
         return adminClientService.getKeycloakUserId(email);
     }
 
-    @GetMapping("/favourite/{username}")
-    public Flux<String> getFavouriteByUsername(@PathVariable("username") String username) {
-        return adminClientService.getFavouriteByUsername(username);
+    @GetMapping("/favourite/{id}")
+    public Flux<Long> getFavouriteByKeycloakId(@PathVariable("id") String id) {
+        return adminClientService.getFavouriteByKeycloakId(id);
     }
 }

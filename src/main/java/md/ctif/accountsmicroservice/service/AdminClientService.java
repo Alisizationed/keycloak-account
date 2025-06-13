@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminClientService {
@@ -65,14 +66,15 @@ public class AdminClientService {
         ).map(Long::valueOf);
     }
 
-    public Flux<String> getFavouriteByUsername(String username) {
+    public Flux<Long> getFavouriteByKeycloakId(String id) {
         try {
-            List<String> list = keycloak.realm("recipe-app").users()
-                    .search(username, true)
-                    .getFirst()
+            List<Long> list = keycloak.realm("recipe-app").users()
+                    .get(id)
+                    .toRepresentation()
                     .getAttributes()
-                    .get("favourite");
-            return list != null ? Flux.fromIterable(list) : Flux.empty();
+                    .get("favourite")
+                    .stream().map(Long::valueOf).collect(Collectors.toList());
+            return Flux.fromIterable(list);
         } catch (Exception e) {
             return Flux.empty();
         }
