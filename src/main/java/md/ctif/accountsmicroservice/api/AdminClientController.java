@@ -42,6 +42,11 @@ public class AdminClientController {
         return adminClientService.getKeycloakUserId(email);
     }
 
+    @GetMapping("/favourite/count/{id}")
+    public Mono<Long> getFavouriteCountByKeycloakId(@PathVariable("id") String id) {
+        return adminClientService.getFavouriteCountByKeycloakId(id);
+    }
+
     @GetMapping("/favourite/{id}")
     public Flux<Long> getFavouriteByKeycloakId(@PathVariable("id") String id) {
         return adminClientService.getFavouriteByKeycloakId(id);
@@ -54,5 +59,22 @@ public class AdminClientController {
             @RequestParam Integer limit
     ) {
         return adminClientService.getFavouriteByKeycloakIdPageable(id, offset, limit);
+    }
+
+    @GetMapping("/favourite/{id}/{favourite}")
+    public Mono<Boolean> isFavourite(
+            @PathVariable("id") String id,
+            @PathVariable("favourite") Long favourite
+    ) {
+        return adminClientService.isFavourite(id, favourite);
+    }
+
+    @PostMapping("/favourite/{id}/{favourite}")
+    public Mono<Void> setIsFavourite(
+            @PathVariable("id") String id,
+            @PathVariable("favourite") Long favourite,
+            @RequestParam Boolean favouriteStatus
+    ) {
+        return adminClientService.setFavouriteStatus(id, favourite, favouriteStatus);
     }
 }

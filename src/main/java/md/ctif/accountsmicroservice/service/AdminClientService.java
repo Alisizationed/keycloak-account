@@ -4,13 +4,13 @@ import md.ctif.accountsmicroservice.DTO.UserListRepresentationDTO;
 import md.ctif.accountsmicroservice.DTO.UserPublicRepresentationDTO;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.AbstractUserRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,6 +80,20 @@ public class AdminClientService {
         }
     }
 
+    public Mono<Long> getFavouriteCountByKeycloakId(String id) {
+        try {
+            Long size = (long) keycloak.realm("recipe-app").users()
+                    .get(id)
+                    .toRepresentation()
+                    .getAttributes()
+                    .get("favourite")
+                    .size();
+            return Mono.just(size);
+        } catch (Exception e) {
+            return Mono.empty();
+        }
+    }
+
     public Flux<Long> getFavouriteByKeycloakIdPageable(String id, Integer offset, Integer limit) {
         try {
             List<Long> list = keycloak.realm("recipe-app").users()
@@ -87,12 +101,52 @@ public class AdminClientService {
                     .toRepresentation()
                     .getAttributes()
                     .get("favourite")
-                    .stream().map(Long::valueOf).collect(Collectors.toList());
-            offset = Math.min(offset,list.toArray().length);
-            limit = Math.min(offset + limit,list.toArray().length);
+                    .stream().map(Long::valueOf).toList();
+            offset = Math.min(offset, list.toArray().length);
+            limit = Math.min(offset + limit, list.toArray().length);
             return Flux.fromIterable(list.subList(offset, limit));
         } catch (Exception e) {
             return Flux.empty();
+        }
+    }
+
+    public Mono<Boolean> isFavourite(String id, Long favourite) {
+        try {
+            return Mono.just(keycloak.realm("recipe-app").users()
+                    .get(id)
+                    .toRepresentation()
+                    .getAttributes()
+                    .get("favourite")
+                    .contains(favourite.toString()));
+        } catch (Exception e) {
+            return Mono.just(false);
+        }
+    }
+
+    public Mono<Void> setFavouriteStatus(String id, Long favourite, Boolean favouriteStatus) {
+        System.out.println(favouriteStatus);
+        if (favouriteStatus == true) {
+            return Mono.fromRunnable(() -> {
+                UserRepresentation user = keycloak.realm("recipe-app")
+                        .users()
+                        .get(id)
+                        .toRepresentation();
+                if (user.getAttributes().putIfAbsent("favourite",List.of(favourite.toString())) != null) {
+                    user.getAttributes().get("favourite").add(favourite.toString());
+                }
+                keycloak.realm("recipe-app").users().get(id).update(user);
+            });
+        } else {
+            return Mono.fromRunnable(() -> {
+                UserRepresentation user = keycloak.realm("recipe-app")
+                        .users()
+                        .get(id)
+                        .toRepresentation();
+                if (user.getAttributes().get("favourite") != null) {
+                    user.getAttributes().get("favourite").remove(favourite.toString());
+                }
+                keycloak.realm("recipe-app").users().get(id).update(user);
+            });
         }
     }
 }
