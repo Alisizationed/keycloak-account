@@ -5,6 +5,7 @@ import md.ctif.accountsmicroservice.DTO.UserListRepresentationDTO;
 import md.ctif.accountsmicroservice.DTO.UserPublicRepresentationDTO;
 import md.ctif.accountsmicroservice.service.AdminClientService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -76,5 +77,13 @@ public class AdminClientController {
             @RequestParam Boolean favouriteStatus
     ) {
         return adminClientService.setFavouriteStatus(id, favourite, favouriteStatus);
+    }
+
+    @PostMapping("/picture/{id}")
+    public Mono<Void> setPicture(
+            @PathVariable String id,
+            @RequestBody String picture
+    ) {
+        return adminClientService.setPicture(id,picture);
     }
 }

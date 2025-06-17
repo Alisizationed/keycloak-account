@@ -149,4 +149,16 @@ public class AdminClientService {
             });
         }
     }
+
+    public Mono<Void> setPicture(String id, String picture) {
+        return Mono.fromRunnable(() -> {
+            UserRepresentation user = keycloak.realm("recipe-app")
+                    .users()
+                    .get(id)
+                    .toRepresentation();
+            user.getAttributes().get("picture").clear();
+            user.getAttributes().get("picture").add(picture);
+            keycloak.realm("recipe-app").users().get(id).update(user);
+        });
+    }
 }
