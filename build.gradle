@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.5'
     id 'io.spring.dependency-management' version '1.1.7'
-    // jib
+    id 'com.google.cloud.tools.jib' version '3.4.0'
 }
 
 group = 'md.ctif'
@@ -25,19 +25,51 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0'
-    compileOnly 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+    // Keycloak
     implementation 'org.keycloak:keycloak-admin-client:26.0.5'
+
+    // OpenAPI
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // Dev tools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+}
+
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre'
+    }
+    to {
+        image = "danuanastasia/accounts-microservice:latest"
+        auth {
+            username = 'danuanastasia'
+            password = project.findProperty("docker.password") as String ?: ""
+        }
+    }
+    container {
+        ports = ['8080']
+        jvmFlags = ['-Xms512m', '-Xmx1024m']
+        environment = [
+                'SPRING_PROFILES_ACTIVE': 'prod'
+        ]
+        user = "1000:1000"
+    }
 }
 
 tasks.named('test') {
