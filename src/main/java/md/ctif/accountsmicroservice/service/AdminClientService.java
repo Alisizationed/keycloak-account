@@ -1,5 +1,6 @@
 package md.ctif.accountsmicroservice.service;
 
+import lombok.extern.log4j.Log4j2;
 import md.ctif.accountsmicroservice.DTO.UserListRepresentationDTO;
 import md.ctif.accountsmicroservice.DTO.UserPublicRepresentationDTO;
 import org.keycloak.admin.client.Keycloak;
@@ -10,9 +11,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Log4j2
 @Service
 public class AdminClientService {
     @Autowired
@@ -112,53 +114,84 @@ public class AdminClientService {
 
     public Mono<Boolean> isFavourite(String id, Long favourite) {
         try {
-            return Mono.just(keycloak.realm("recipe-app").users()
-                    .get(id)
-                    .toRepresentation()
-                    .getAttributes()
-                    .get("favourite")
-                    .contains(favourite.toString()));
+            UserRepresentation user = keycloak.realm("recipe-app").users().get(id).toRepresentation();
+            Map<String, List<String>> attrs = user.getAttributes();
+            boolean contains = attrs != null
+                    && attrs.get("favourite") != null
+                    && attrs.get("favourite").contains(favourite.toString());
+            log.info("Checked favourite status for user {}, favourite {}: {}", id, favourite, contains);
+            return Mono.just(contains);
         } catch (Exception e) {
+            log.error("Error checking favourite status for user {} favourite {}", id, favourite, e);
             return Mono.just(false);
         }
     }
 
     public Mono<Void> setFavouriteStatus(String id, Long favourite, Boolean favouriteStatus) {
-        System.out.println(favouriteStatus);
-        if (favouriteStatus == true) {
-            return Mono.fromRunnable(() -> {
-                UserRepresentation user = keycloak.realm("recipe-app")
-                        .users()
-                        .get(id)
-                        .toRepresentation();
-                if (user.getAttributes().putIfAbsent("favourite",List.of(favourite.toString())) != null) {
-                    user.getAttributes().get("favourite").add(favourite.toString());
+        log.info("Setting favourite status for user {}, favourite {}, status {}", id, favourite, favouriteStatus);
+        return Mono.fromRunnable(() -> {
+            try {
+                UserRepresentation user = keycloak.realm("recipe-app").users().get(id).toRepresentation();
+                var attrs = Optional.ofNullable(user.getAttributes())
+                        .orElseGet(() -> {
+                            Map<String, List<String>> newAttrs = new HashMap<>();
+                            user.setAttributes(newAttrs);
+                            return newAttrs;
+                        });
+
+                List<String> favourites = attrs.computeIfAbsent("favourite", k -> new ArrayList<>());
+
+                if (Boolean.TRUE.equals(favouriteStatus)) {
+                    if (!favourites.contains(favourite.toString())) {
+                        favourites.add(favourite.toString());
+                        log.info("Added favourite {} for user {}", favourite, id);
+                    } else {
+                        log.info("Favourite {} already present for user {}", favourite, id);
+                    }
+                } else {
+                    if (favourites.remove(favourite.toString())) {
+                        log.info("Removed favourite {} for user {}", favourite, id);
+                    } else {
+                        log.info("Favourite {} was not present for user {}", favourite, id);
+                    }
                 }
+
                 keycloak.realm("recipe-app").users().get(id).update(user);
-            });
-        } else {
-            return Mono.fromRunnable(() -> {
-                UserRepresentation user = keycloak.realm("recipe-app")
-                        .users()
-                        .get(id)
-                        .toRepresentation();
-                if (user.getAttributes().get("favourite") != null) {
-                    user.getAttributes().get("favourite").remove(favourite.toString());
-                }
-                keycloak.realm("recipe-app").users().get(id).update(user);
-            });
-        }
+            } catch (Exception e) {
+                log.error("Error setting favourite status for user {} favourite {} status {}", id, favourite, favouriteStatus, e);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public Mono<Void> setPicture(String id, String picture) {
+        log.info("Setting picture for user {} to {}", id, picture);
         return Mono.fromRunnable(() -> {
-            UserRepresentation user = keycloak.realm("recipe-app")
-                    .users()
-                    .get(id)
-                    .toRepresentation();
-            user.getAttributes().get("picture").clear();
-            user.getAttributes().get("picture").add(picture);
-            keycloak.realm("recipe-app").users().get(id).update(user);
+            try {
+                UserRepresentation user = keycloak.realm("recipe-app").users().get(id).toRepresentation();
+                Map<String, List<String>> attrs = Optional.ofNullable(user.getAttributes())
+                        .orElseGet(() -> {
+                            Map<String, List<String>> newAttrs = new HashMap<>();
+                            user.setAttributes(newAttrs);
+                            return newAttrs;
+                        });
+
+                List<String> pictures = attrs.get("picture");
+                if (pictures == null) {
+                    pictures = new ArrayList<>();
+                    attrs.put("picture", pictures);
+                } else {
+                    pictures.clear();
+                }
+
+                pictures.add(picture);
+                log.info("Picture set successfully for user {}", id);
+
+                keycloak.realm("recipe-app").users().get(id).update(user);
+            } catch (Exception e) {
+                log.error("Error setting picture for user {}", id, e);
+                throw new RuntimeException(e);
+            }
         });
     }
 }
